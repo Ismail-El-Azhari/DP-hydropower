@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
     print("Simulated runoff saved to runoff_simulated.csv")
 
-def discretize_runoff_to_qr_bins(csv_path):
+def discretize_runoff_to_qr_bins(csv_path, output_csv):
     
     df = pd.read_csv("runoff_simulated.csv")
     qr_bins_df = pd.DataFrame()
@@ -47,9 +47,19 @@ def discretize_runoff_to_qr_bins(csv_path):
 
         qr_bins_df[month] = bin_indices
 
+    qr_bins_df.to_csv(output_csv, index=False)
+    print(f" Saved QR bin labels to {output_csv}")
     return qr_bins_df
 
+
 if __name__ == "__main__":
-    qr_df = discretize_runoff_to_qr_bins("runoff_simulated.csv")
-    qr_df.to_csv("runoff_bins.csv", index=False)
-    print("✅ Saved QR bin labels to runoff_bins.csv")
+    # Simulate from log-normal marginals
+    simulated_data = simulate_monthly_runoff(n_samples=5000)
+    df = pd.DataFrame(simulated_data)
+    df.to_csv("runoff_simulated.csv", index=False)
+    print("Simulated runoff saved to runoff_simulated.csv")
+
+    # Discretize both files
+    discretize_runoff_to_qr_bins("runoff_simulated.csv", "runoff_bins.csv")
+    discretize_runoff_to_qr_bins("runoff_gibbs.csv", "runoff_gibbs_bins.csv")
+
