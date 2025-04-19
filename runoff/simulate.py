@@ -10,7 +10,7 @@ def simulate_monthly_runoff(n_samples=5000):
     simulated_data = {}
 
     for month, values in runoff_qr.items():
-        
+        #Turn the values into an np array for eaiser manipulation
         data = np.array(values)
 
         shape, loc, scale = lognorm.fit(data, floc=0)
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     simulated_data = simulate_monthly_runoff(n_samples=5000)
     df = pd.DataFrame(simulated_data)
     df.to_csv("runoff_simulated.csv", index=False)
-    print("Simulated runoff saved to runoff_simulated.csv")
+    print("Saved to runoff_simulated.csv")
 
     # Discretize both files
     discretize_runoff_to_qr_bins("runoff_simulated.csv", "runoff_bins.csv")
