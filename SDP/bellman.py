@@ -38,29 +38,36 @@ def sdp_dam(max_iter=1000, tol=1e-3, verbose=True):
             continue
 
           expected_value = 0
-          for qr_idx in range(10):
-            runoff = runoff_values[qr_idx]
-            prob = P[qr_idx][qr_idx]  # for now, diagonal only
+          
+          for qr_idx1 in range(10):
+            #The runoff from this level
+            runoff = runoff_values[qr_idx1]
+            #Calculate the reward based on current runoff and release decision
+            reward = power(runoff, zb, ze)
+            #Using transition probabilities to get the Expected runoff for next period
+            for qr_idx2 in range(10):
+              prob = P[qr_idx1][qr_idx2]
+              runoff_next = runoff_qr[next_month][qr_idx2]
+              #Water level next month
+              next_zb = ze + runoff_next
 
-            next_zb = ze + runoff
-            if next_zb < Z_MIN or next_zb > Z_MAX:
+              if next_zb < Z_MIN or next_zb > Z_MAX:
                 continue
 
-            next_zb_i = int(round(next_zb)) - Z_MIN
-            reward = power(runoff, zb, ze)
-            future_value = J[next_month][next_zb_i]
-
-            expected_value += prob * (reward + future_value)
+              next_zb_i = int(round(next_zb)) - Z_MIN
+              future_value = J[next_month][next_zb_i]
+              #E(Power) calculated here 
+              expected_value += prob * (reward + future_value)
 
           if expected_value > best_value:
-              best_value = expected_value
-              best_release = release
+            best_value = expected_value
+            best_release = release
 
-          J[month][zb_i] = best_value
-          policy[month][zb_i] = best_release
+        J[month][zb_i] = best_value
+        policy[month][zb_i] = best_release
 
       # After all months and levels, check convergence
-      max_diff = max(np.max(np.abs(J[m] - J_prev[m])) for m in months)
+    max_diff = max(np.max(np.abs(J[m] - J_prev[m])) for m in months)
 
     if verbose:
       print(f" Iteration {iteration+1}, Delta = {max_diff:.5f}")

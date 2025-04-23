@@ -1,5 +1,8 @@
 import numpy as np
 from SDP.utils import *
+from runoff.transition_matrices import transition_matrices
+from runoff.runoff_data import runoff_qr
+
 
 # numbers=np.array([i*10 for i in range(10)])
 # print(numbers)
@@ -19,3 +22,12 @@ from SDP.utils import *
 #   next_month = (curr_month % 12) + 1
 #   key = f"{curr_month}_{next_month}"
 #   print(key)
+
+# for i in reversed(range(len(months))):
+#   curr_month = (i + 6) % 12 or 12
+#   next_month_num = (curr_month % 12) + 1
+#   key = f"{curr_month}_{next_month_num}"
+#   print(key)
+
+
+
