@@ -2,16 +2,19 @@
 import numpy as np
 from runoff.transition_matrices import transition_matrices
 from runoff.runoff_data import runoff_qr
-from utils import *
+from SDP.utils import *
 
 
 
-def sdp_dam(max_iter=1000, tol=1e-3, verbose=True):
+def sdp_dam(max_iter=100, tol=1e-3, verbose=True):
   # Initialize value and policy tables
   J = {month: np.zeros(len(ZB_LEVELS)) for month in months}
   policy = {month: np.zeros(len(ZB_LEVELS)) for month in months}
+  # I chose beta=0.9 for discounting
+  beta=0.9
 
   for iteration in range(max_iter):
+    #Create a copy of the runoff values to be able to compare how they changed later on in my max_diff
     J_prev = {m: J[m].copy() for m in months}
     max_diff = 0
 
@@ -26,6 +29,10 @@ def sdp_dam(max_iter=1000, tol=1e-3, verbose=True):
       key = f"{curr_month}_{next_month_num}"
 
       P = transition_matrices[key]
+      # if P.shape != (10, 10):
+      #   print(f"Issue for {key}: {P.shape}")
+      #   print(P)
+
       runoff_values = runoff_qr[month]
 
       for zb_i, zb in enumerate(ZB_LEVELS):
@@ -56,9 +63,20 @@ def sdp_dam(max_iter=1000, tol=1e-3, verbose=True):
 
               next_zb_i = int(round(next_zb)) - Z_MIN
               future_value = J[next_month][next_zb_i]
-              #E(Power) calculated here 
-              expected_value += prob * (reward + future_value)
+              # if iteration == 0 and zb == 765 and month == "June":
+              #   print(f"[DEBUG] release={release}, runoff={runoff:.2f}, ze={ze}, next_zb={next_zb}, reward={reward:.2f}, future={future_value:.2f}, prob={prob}")
 
+              #E(Power) calculated here, 
+              # IMPORTANT: Scaling both reward and value function by 1e3 to keep numerical values small and consistent
+              # Assumes all energy values are expressed in kilounits (e.g., kWh), not Wh
+              expected_value += prob * (reward + beta*future_value)/1e3
+              
+          # # Debug trace for a specific condition
+          # if zb == 765 and month == "June" and iteration < 2:
+          #   print(f"[DEBUG] release={release}, runoff={runoff:.2f}, ze={ze}, "
+          #     f"next_zb={next_zb:.2f}, reward={reward:.2f}, "
+          #     f"future={future_value:.2f}, expected={expected_value:.2f}")
+            
           if expected_value > best_value:
             best_value = expected_value
             best_release = release
