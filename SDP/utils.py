@@ -7,8 +7,8 @@ months = [
 
 # I defined the power function this way:
 def power(runoff, zb, ze, efficiency=0.9):
-  release = zb - ze
-  return efficiency * np.log1p(runoff + 1) * np.log1p(release + 1)
+  release = max(zb - ze,0)
+  return efficiency * np.log1p(runoff) * np.log1p(release)
 
 # Water levels in meters (states)
 #I chose the water evels based on figure 11 in the paper

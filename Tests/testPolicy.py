@@ -1,8 +1,8 @@
-from SDP.bellman import *
+from SDP.ExactDP import *
 from SDP.utils import *
 
 # Run the SDP solver
-policy, J = sdp_dam(debug=True)
+policy, J = sdp_dam()
 
 
 # Print the optimal policy for each month
