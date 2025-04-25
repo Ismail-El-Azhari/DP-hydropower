@@ -1,5 +1,8 @@
 import numpy as np
 
+# These Matrice probability transitions are provided by the paper
+
+
 transition_matrices= {
   "6_7":np.array([[0.42, 0.16, 0.1, 0.07, 0.05, 0.06, 0.03, 0.06, 0.04, 0.01], 
                   [0.16, 0.16, 0.14, 0.12, 0.1, 0.08, 0.08, 0.06, 0.05, 0.05], 

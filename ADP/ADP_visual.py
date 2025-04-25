@@ -6,7 +6,7 @@ from SDP.utils import months, ZB_LEVELS, Z_MIN, Z_MAX
 
 # Load the full QR-level policy arrays
 policy_by_qr = {
-    m: np.load(f"policy_adp_npy/policy_{m}_qr.npy")  # shape: (10, len(ZB_LEVELS))
+    m: np.load(f"policy_adp_npy/policy_{m}_approx.npy")  # shape: (10, len(ZB_LEVELS))
     for m in months
 }
 

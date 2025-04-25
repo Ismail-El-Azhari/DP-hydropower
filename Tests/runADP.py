@@ -1,4 +1,4 @@
-from SDP.ADP import *
+from ADP.ADP import *
 from SDP.utils import *
 
 # Run the SDP solver

@@ -30,3 +30,5 @@ from runoff.runoff_data import runoff_qr
 #   print(key)
 
 
+
+# J = {month: np.zeros(10) for month in months}
