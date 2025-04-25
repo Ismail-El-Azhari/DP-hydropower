@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 from scipy.stats import lognorm
-from runoff.runoff_data import runoff_qr
+from dam_model.runoff_data import runoff_qr
 
 
 def simulate_monthly_runoff(n_samples=5000):

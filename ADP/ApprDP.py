@@ -1,51 +1,31 @@
 import numpy as np
-from runoff.transition_matrices import transition_matrices
-from runoff.runoff_data import runoff_qr
-from SDP.utils import *
+from dam_model.transition_matrices import transition_matrices
+from dam_model.runoff_data import runoff_qr
+from dam_model.utils import *
 import os
 import random  # For random sampling
 
 def adp_dam(max_iter=100, tol=0.01, Print_Iterations=True, debug=False,
-                   n_zb_samples=90,  # Number of ZB states to sample
+                   n_zb_samples=90,  # Number of ZB states left untoched
                    n_qr_samples=5,    # Number of QR samples for expectation
                    n_release_samples=5): # Number of release actions to sample
-    """
-    Approximate Stochastic Dynamic Programming for dam management.  This version
-    uses state and action sampling to reduce the computational burden associated
-    with the curse of dimensionality.  It calculates the final policy and value 
-    function by averaging over QR bins.
+    
+    ''' This version uses state and action sampling to reduce the computational burden associated 
+    with the curse of dimensionality.'''
 
-    Args:
-        max_iter (int): Maximum number of iterations.
-        tol (float): Convergence tolerance.(I chose 0.1 for faster convergence and it makes sense regarding the values of J)
-        Print_Iterations (bool): To print delta to see how fast we converge
-        debug (bool):  To help with debugging, can be removed
-        n_zb_samples (int): Number of ZB (reservoir level) states to sample in each month.
-        n_qr_samples (int): Number of QR (runoff quantile) samples to use when
-            approximating the expectation over future states.
-        n_release_samples (int): Number of release actions to sample.
+    '''Comments only on the parts that are different from Exact DP to make the code more readible, the code is identical, I just sampled the Reservoir levels and runoff bins'''
 
-    Returns:
-        tuple: (policy, J)
-            policy (dict):  Approximate optimal policy for each month.
-            J (dict): Approximate optimal value function for each month.
-    """
-    # Initialize value and policy tables
     J = {month: np.zeros(len(ZB_LEVELS)) for month in months}
     policy = {month: np.zeros(len(ZB_LEVELS)) for month in months}
-    policy_by_qr = {month: np.zeros((10, len(ZB_LEVELS))) for month in months}  # full QR policy for visualization
-    beta = 0.9  # Discount factor
+    policy_by_qr = {month: np.zeros((10, len(ZB_LEVELS))) for month in months}  
+    beta = 0.9
 
     for iteration in range(max_iter):
-        # snapshot of old values for convergence check
         J_prev = {m: J[m].copy() for m in months}
-
-        # backward DP sweep
         for i in reversed(range(len(months))):
             month = months[i]
             next_month = months[(i + 1) % 12]
 
-            # determine transition matrix key
             curr_num = (i + 6) % 12 or 12
             next_num = (curr_num % 12) + 1
             P = transition_matrices[f"{curr_num}_{next_num}"]
@@ -53,33 +33,34 @@ def adp_dam(max_iter=100, tol=0.01, Print_Iterations=True, debug=False,
             runoff_values = runoff_qr[month]
             M = len(runoff_values)
 
-            # Sample ZB states.
+            # Randomly sample a subset of ZB (reservoir level) states
             zb_indices = random.sample(range(len(ZB_LEVELS)), min(n_zb_samples, len(ZB_LEVELS)))
 
             for zb_i in zb_indices:
                 zb = ZB_LEVELS[zb_i]
                 avg_value = 0.0
 
-                #for qr_idx1 in range(M): # changed
+                #for index1 in range(M): # changed
                 qr_indices = np.linspace(0, M-1, n_qr_samples, dtype=int)
-                for qr_idx1 in qr_indices:
+                for index1 in qr_indices:
                     best_value = -np.inf
                     best_release = 0
 
-                    # Sample releases
+                    # Sample a few runoff bins (QR samples) instead of using all them
                     sampled_releases = np.linspace(min(RELEASES), max(RELEASES), n_release_samples)
+
                     for release in sampled_releases:
                         ze = zb - release
                         if ze < Z_MIN:
                             continue
 
-                        reward = power(runoff_values[qr_idx1], zb, ze)
+                        reward = power(runoff_values[index1], zb, ze)
                         penalty = -1000 if (ze < 750 or ze > 830) else 0
 
                         expected_value = 0.0
-                        for qr_idx2 in range(M):
-                            prob = P[qr_idx1][qr_idx2]
-                            runoff_next = runoff_qr[next_month][qr_idx2]
+                        for index2 in range(M):
+                            prob = P[index1][index2]
+                            runoff_next = runoff_qr[next_month][index2]
                             next_zb = ze + runoff_next
 
                             if not (Z_MIN <= next_zb <= Z_MAX):
@@ -93,12 +74,12 @@ def adp_dam(max_iter=100, tol=0.01, Print_Iterations=True, debug=False,
                             best_value = expected_value
                             best_release = release
 
-                    policy_by_qr[month][qr_idx1, zb_i] = best_release
+                    policy_by_qr[month][index1, zb_i] = best_release
                     avg_value += best_value
 
-                # After looping all QR bins, store average value and policy
+                # After looping all QR bins, store average value and policy, here instead of M, we devide by the number of qr samples we chose
                 policy[month][zb_i] = np.mean(policy_by_qr[month][:, zb_i])
-                J[month][zb_i] = avg_value / len(qr_indices) # changed
+                J[month][zb_i] = avg_value / len(qr_indices) 
 
         # check convergence
         delta = max(np.max(np.abs(J[m] - J_prev[m])) for m in months)
@@ -108,10 +89,9 @@ def adp_dam(max_iter=100, tol=0.01, Print_Iterations=True, debug=False,
             print(f" Converged after {iteration+1} iterations.")
             break
 
-    # Save both main policy and the detailed per-QR policy arrays
     os.makedirs("policy_adp_npy", exist_ok=True)
 
     for m, P in policy_by_qr.items():
-        np.save(f"policy_adp_npy/policy_{m}_approx.npy", P) # changed
+        np.save(f"policy_adp_npy/policy_{m}_approx.npy", P) 
 
     return policy, J

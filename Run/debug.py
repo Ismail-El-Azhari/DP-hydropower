@@ -45,15 +45,15 @@
 #     print(f"zb = {740 + zb_idx}: {releases.round(1)}")
 
 
-import numpy as np
+# import numpy as np
 
-policy = np.load("policy2_npy/policy_October_qr.npy")
-zb_values = [750, 760, 770, 780, 790, 800]
+# policy = np.load("policy2_npy/policy_October_qr.npy")
+# zb_values = [750, 760, 770, 780, 790, 800]
 
-print("Zb-level differences for each QR in October:")
-for zb in zb_values:
-    idx = zb - 740
-    releases = policy[:, idx]
-    print(f"Zb = {zb} → {releases}")
+# print("Zb-level differences for each QR in October:")
+# for zb in zb_values:
+#     idx = zb - 740
+#     releases = policy[:, idx]
+#     print(f"Zb = {zb} → {releases}")
 
 

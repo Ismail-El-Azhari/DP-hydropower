@@ -1,7 +1,7 @@
 import numpy as np
-from SDP.utils import *
-from runoff.transition_matrices import transition_matrices
-from runoff.runoff_data import runoff_qr
+from dam_model.utils import *
+from dam_model.transition_matrices import transition_matrices
+from dam_model.runoff_data import runoff_qr
 
 
 # numbers=np.array([i*10 for i in range(10)])

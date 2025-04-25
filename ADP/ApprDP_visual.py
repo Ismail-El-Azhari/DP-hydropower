@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from SDP.utils import months, ZB_LEVELS, Z_MIN, Z_MAX
+from dam_model.utils import months, ZB_LEVELS, Z_MIN, Z_MAX
 
 
 # Load the full QR-level policy arrays
@@ -9,8 +9,6 @@ policy_by_qr = {
     m: np.load(f"policy_adp_npy/policy_{m}_approx.npy")  # shape: (10, len(ZB_LEVELS))
     for m in months
 }
-
-# Limit to just 2 months for now
 
 
 # Create plot
