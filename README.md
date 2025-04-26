@@ -20,7 +20,7 @@ This project uses Python 3.9+.
 
 If you don't already have the required packages installed, run:
 
-pip install -r requirements.txtun:
+`pip install -r requirements.txt`:
 
 # Clean-up:
 
@@ -30,13 +30,13 @@ pip install -r requirements.txtun:
 
 ## Test Exact DP:
 
-- To run the code, type into the terminal: `python -m Run.runExactDP` (This will take a few minutes, you will see on the console the iterations print alongside the delta values)
-- Once it is done, to visualize the data, type into the terminal: `python -m SDP.ExactDP_visual`
+- To run the code, type into the terminal: `python3 -m Run.runExactDP` (This will take a few minutes, you will see on the console the iterations print alongside the delta values)
+- Once it is done, to visualize the data, type into the terminal: `python3 -m SDP.ExactDP_visual`
 
 ## Test Approximate DP:
 
-- To run the code, type into the terminal: `python -m Run.runApprDP` (This will be fast, you will see on the console the iterations print alongside the delta values)
-- Once it is done, to visualize the data, type into the terminal: `python -m ADP.ApprDP_visual`
+- To run the code, type into the terminal: `python3 -m Run.runApprDP` (This will be fast, you will see on the console the iterations print alongside the delta values)
+- Once it is done, to visualize the data, type into the terminal: `python3 -m ADP.ApprDP_visual`
 
 ## Personalisation:
 

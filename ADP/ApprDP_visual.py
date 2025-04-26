@@ -12,7 +12,7 @@ policy_by_qr = {
 
 
 # Create plot
-fig, axes = plt.subplots(3, 4, figsize=(16, 12))
+fig, axes = plt.subplots(3, 4, figsize=(12, 8))
 axes = axes.flatten()
 
 for ax, m in zip(axes, months):
